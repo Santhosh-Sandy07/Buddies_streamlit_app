@@ -1,25 +1,31 @@
 import streamlit as st
-import time
+import streamlit.components.v1 as components
 import random
 
-def move_button():
-    # Random initial position
-    x = random.uniform(0, 1)
-    y = random.uniform(0, 1)
-    button_location = st.empty()
+# JavaScript code for moving the button on hover
+js_move_button = """
+const button = document.getElementById("no_button");
 
-    while True:
-        # Display the button at the current position
-        button = st.button('NO', key='no_button', on_click=st.stop)
-        button_location.button_area.button_components[0].plotly_chart({'data': []}, use_container_width=True)
-        button_location.button_area.button_components[0].update_layout(
-            {'xaxis': {'range': [x, x + 0.1]}, 'yaxis': {'range': [y, y + 0.1]}}
-        )
+button.addEventListener("mouseover", function() {
+    const x = Math.random() * 80;
+    const y = Math.random() * 80;
+    button.style.position = "absolute";
+    button.style.left = x + "vw";
+    button.style.top = y + "vh";
+});
+"""
 
-        # Update position every 0.5 seconds
-        time.sleep(0.5)
-        x = random.uniform(0, 1)
-        y = random.uniform(0, 1)
+# Streamlit app
+def main():
+    st.title("Interactive Buttons")
 
-if __name__ == '__main__':
-    move_button()
+    # Display the YES button
+    if st.button("YES"):
+        st.success("You clicked YES!")
+
+    # Display the NO button with custom JavaScript for movement
+    components.html('<button id="no_button" style="position: relative;">NO</button>', height=50)
+    st.markdown(f'<script>{js_move_button}</script>', unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()

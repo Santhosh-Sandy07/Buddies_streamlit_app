@@ -1,25 +1,44 @@
 import streamlit as st
-import time
+import pandas as pd
 import random
 
-def move_button():
-    # Random initial position
-    x = random.uniform(0, 1)
-    y = random.uniform(0, 1)
-    button_location = st.empty()
+# Sample data for demonstration purposes
+user_data = pd.DataFrame({
+    'Name': ['Alice', 'Bob', 'Charlie', 'David', 'Emma'],
+    'Age': [25, 28, 24, 27, 26],
+    'Gender': ['Female', 'Male', 'Male', 'Male', 'Female']
+})
 
-    while True:
-        # Display the button at the current position
-        button = st.button('NO', key='no_button', on_click=st.stop)
-        button_location.button_area.button_components[0].plotly_chart({'data': []}, use_container_width=True)
-        button_location.button_area.button_components[0].update_layout(
-            {'xaxis': {'range': [x, x + 0.1]}, 'yaxis': {'range': [y, y + 0.1]}}
-        )
+# Function to find a match
+def find_match(user_id):
+    other_users = user_data[user_data.index != user_id]
+    return random.choice(other_users.index)
 
-        # Update position every 0.5 seconds
-        time.sleep(0.5)
-        x = random.uniform(0, 1)
-        y = random.uniform(0, 1)
+# Streamlit app
+def main():
+    st.title('Simple Dating App')
+
+    # User registration
+    st.sidebar.header('User Registration')
+    name = st.sidebar.text_input('Enter your name:')
+    age = st.sidebar.number_input('Enter your age:', min_value=18, max_value=99)
+    gender = st.sidebar.radio('Select your gender:', ['Male', 'Female'])
+
+    if st.sidebar.button('Register'):
+        user_data.loc[len(user_data)] = [name, age, gender]
+
+    # Display registered users
+    st.subheader('Registered Users')
+    st.table(user_data)
+
+    # Matchmaking
+    user_id = st.sidebar.selectbox('Select your user ID:', user_data.index)
+    st.sidebar.text(f'Hello, {user_data.loc[user_id]["Name"]}!')
+
+    if st.sidebar.button('Find Match'):
+        match_id = find_match(user_id)
+        match_name = user_data.loc[match_id]['Name']
+        st.success(f'Congratulations! You matched with {match_name}!')
 
 if __name__ == '__main__':
-    move_button()
+    main()
